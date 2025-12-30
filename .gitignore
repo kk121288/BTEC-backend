@@ -1,20 +1,3 @@
-.vscode
 node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-
-# Environment variables and secrets
-.env
-.env.local
-.env.*.local
-GENERATED_SECRETS.txt
-secrets/
-*.key
-*.pem
-
-# Logs
-*.log
-setup.log
-health_check.log
+.next/
+.env*

@@ -1,0 +1,27 @@
+{
+  "app": {
+    "name": "BTEC Assessment Engine",
+    "description": "Advanced educational assessment platform"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "simulation": "Simulation",
+    "assignments": "Assignments",
+    "profile": "Profile",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "buttons": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalid": "Invalid value"
+  }
+}
