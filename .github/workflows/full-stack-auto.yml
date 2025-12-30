@@ -55,7 +55,8 @@ jobs:
       - name: Install backend deps
         run: |
           cd $BACKEND_DIR
-          pip install -r requirements.txt
+          pip install uv
+          uv sync
 
       - name: Build backend images
         run: |
