@@ -2,7 +2,7 @@ name: BTEC Virtual World – Full Auto Build & Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 env:

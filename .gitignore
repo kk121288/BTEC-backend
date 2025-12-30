@@ -5,6 +5,13 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
 # Environment variables and secrets
 .env
 .env.local
