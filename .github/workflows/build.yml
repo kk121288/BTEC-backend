@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        tags: btec-backend:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Run smoke test
+      run: |
+        docker run --rm -d --name btec-test -p 8000:8000 \
+          -e DATABASE_URL=sqlite:///./test.db \
+          -e SECRET_KEY=test-secret-key \
+          btec-backend:test
+        
+        # Wait for app to start
+        sleep 10
+        
+        # Test health endpoint
+        curl -f http://localhost:8000/api/health || exit 1
+        
+        # Cleanup
+        docker stop btec-test
