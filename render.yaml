@@ -1,0 +1,94 @@
+services:
+  # FastAPI Backend Service
+  - type: web
+    name: btec-backend
+    runtime: docker
+    plan: free  # Change to 'starter' or 'standard' for production
+    region: oregon  # Change to your preferred region
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      # Database Configuration
+      - key: POSTGRES_SERVER
+        fromDatabase:
+          name: btec-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: btec-db
+          property: port
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: btec-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: btec-db
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: btec-db
+          property: database
+      
+      # Application Configuration
+      - key: PROJECT_NAME
+        value: "BTEC Smart Platform"
+      - key: API_V1_STR
+        value: "/api/v1"
+      - key: ENVIRONMENT
+        value: production
+      
+      # Security Configuration (Set these in Render Dashboard)
+      - key: SECRET_KEY
+        sync: false  # Set this manually in Render dashboard
+      
+      # CORS Configuration
+      - key: BACKEND_CORS_ORIGINS
+        value: "https://your-frontend.vercel.app,https://btec-frontend.onrender.com"
+      - key: FRONTEND_HOST
+        value: "https://your-frontend.vercel.app"
+      
+      # Email Configuration (Optional - Configure in Render Dashboard)
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_TLS
+        value: "true"
+      - key: EMAILS_FROM_EMAIL
+        sync: false
+      - key: EMAILS_FROM_NAME
+        value: "BTEC Platform"
+      
+      # Superuser Configuration (Configure in Render Dashboard)
+      - key: FIRST_SUPERUSER
+        sync: false
+      - key: FIRST_SUPERUSER_PASSWORD
+        sync: false
+    
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    
+    buildFilter:
+      paths:
+        - backend/**
+        - render.yaml
+
+databases:
+  # PostgreSQL Database
+  - name: btec-db
+    databaseName: btec_production
+    user: btec_user
+    plan: free  # Change to 'starter' or 'standard' for production
+    region: oregon  # Same region as web service for better performance
+    ipAllowList: []  # Empty list allows connections from Render services only
+
+# Note: After deploying, make sure to set the following secrets in Render Dashboard:
+# 1. SECRET_KEY - Generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"
+# 2. FIRST_SUPERUSER - Admin email address
+# 3. FIRST_SUPERUSER_PASSWORD - Secure admin password
+# 4. SMTP credentials (if email functionality is needed)
