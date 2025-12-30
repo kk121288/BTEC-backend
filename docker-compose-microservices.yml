@@ -6,9 +6,9 @@ services:
       dockerfile: Dockerfile
     container_name: example_service
     ports:
-    - 8000:8000
+      - 8000:8000
     networks:
-    - microservices
+      - microservices
     environment:
       SERVICE_NAME: example_service
       SERVICE_PORT: 8000
@@ -24,11 +24,11 @@ services:
       dockerfile: Dockerfile
     container_name: api_gateway
     ports:
-    - 80:80
+      - 80:80
     networks:
-    - microservices
+      - microservices
     depends_on:
-    - example_service
+      - example_service
     restart: unless-stopped
     environment:
       SERVICES: '{"example_service": "http://example_service:8000"}'

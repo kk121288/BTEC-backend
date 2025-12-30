@@ -2,7 +2,7 @@ name: BTEC Virtual World – Full Auto Build & Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -18,6 +18,8 @@ jobs:
 
   build-frontend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -44,6 +46,9 @@ jobs:
 
   build-backend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -55,7 +60,8 @@ jobs:
       - name: Install backend deps
         run: |
           cd $BACKEND_DIR
-          pip install -r requirements.txt
+          pip install uv
+          uv sync
 
       - name: Build backend images
         run: |
@@ -77,6 +83,9 @@ jobs:
   build-nginx:
     needs: [build-frontend, build-backend]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -105,6 +114,8 @@ jobs:
   deploy:
     needs: [build-nginx]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@v0.1.10
