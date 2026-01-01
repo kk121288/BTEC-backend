@@ -1,7 +1,3 @@
-node_modules/
-.next/
-.env*
-
 # Python
 __pycache__/
 *.py[cod]
@@ -32,7 +28,6 @@ wheels/
 .coverage
 htmlcov/
 *.db
-test.db
 
 # IDEs
 .vscode/
@@ -40,5 +35,21 @@ test.db
 *.swp
 *.swo
 
-# Logs
+# Environment
+.env
+.env.local
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# CI/CD
+.github/
+
+# Development files
 *.log
+.DS_Store

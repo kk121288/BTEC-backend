@@ -1,0 +1,141 @@
+# Initial GitHub Issues for BTEC Backend
+
+# This file contains issue templates to be created in the GitHub repository
+# These issues track the next phase of development after the initial setup
+
+issues:
+  - title: "Add user profile management endpoints"
+    labels: ["enhancement", "sprint-1", "user-management"]
+    assignees: []
+    body: |
+      ## Description
+      Implement user profile management endpoints to allow users to view and update their profiles.
+      
+      ## Tasks
+      - [ ] Add GET /api/users/me endpoint
+      - [ ] Add PATCH /api/users/me endpoint
+      - [ ] Add DELETE /api/users/me endpoint
+      - [ ] Add user profile schema
+      - [ ] Write tests for profile endpoints
+      - [ ] Update API documentation
+      
+      ## Acceptance Criteria
+      - Users can retrieve their profile information
+      - Users can update their profile (name, email)
+      - Users can delete their account
+      - All endpoints are properly tested
+      - OpenAPI documentation is updated
+      
+      ## Technical Notes
+      - Requires authentication
+      - Email changes should require verification
+      - Account deletion should be soft delete or include confirmation
+
+  - title: "Implement role-based access control (RBAC)"
+    labels: ["enhancement", "security", "sprint-1"]
+    assignees: []
+    body: |
+      ## Description
+      Add role-based access control to restrict certain endpoints to admin users.
+      
+      ## Tasks
+      - [ ] Add role field to User model
+      - [ ] Create migration for role field
+      - [ ] Implement role checking dependency
+      - [ ] Add admin-only endpoints
+      - [ ] Write tests for RBAC
+      - [ ] Document permission system
+      
+      ## Acceptance Criteria
+      - Users have roles (user, admin, superuser)
+      - Admin endpoints check for admin role
+      - Non-admin users receive 403 on admin endpoints
+      - Tests cover all role scenarios
+      
+      ## Technical Notes
+      - Consider using enum for roles
+      - Implement as FastAPI dependency
+      - May need to update token payload to include role
+
+  - title: "Add email verification functionality"
+    labels: ["enhancement", "authentication", "sprint-2"]
+    assignees: []
+    body: |
+      ## Description
+      Implement email verification to ensure users have valid email addresses.
+      
+      ## Tasks
+      - [ ] Add email_verified field to User model
+      - [ ] Generate verification tokens
+      - [ ] Create email verification endpoint
+      - [ ] Send verification emails on registration
+      - [ ] Add resend verification email endpoint
+      - [ ] Write tests for verification flow
+      - [ ] Set up email service (SMTP)
+      
+      ## Acceptance Criteria
+      - New users receive verification emails
+      - Users can verify their email via token
+      - Unverified users cannot access protected resources
+      - Users can request new verification emails
+      - Tokens expire after 24 hours
+      
+      ## Technical Notes
+      - Use JWT for verification tokens
+      - Consider using email template library (Jinja2)
+      - Add email configuration to settings
+
+  - title: "Implement password reset functionality"
+    labels: ["enhancement", "authentication", "sprint-2"]
+    assignees: []
+    body: |
+      ## Description
+      Add password reset functionality for users who forget their passwords.
+      
+      ## Tasks
+      - [ ] Add forgot password endpoint
+      - [ ] Generate password reset tokens
+      - [ ] Send password reset emails
+      - [ ] Add reset password endpoint
+      - [ ] Add token expiration (15 minutes)
+      - [ ] Write tests for password reset
+      - [ ] Update documentation
+      
+      ## Acceptance Criteria
+      - Users can request password reset
+      - Reset emails are sent successfully
+      - Users can reset password with valid token
+      - Tokens expire after 15 minutes
+      - Old tokens are invalidated after password change
+      
+      ## Technical Notes
+      - Store reset tokens securely
+      - Rate limit password reset requests
+      - Consider adding CAPTCHA for abuse prevention
+
+  - title: "Add rate limiting middleware"
+    labels: ["enhancement", "security", "sprint-3"]
+    assignees: []
+    body: |
+      ## Description
+      Implement rate limiting to prevent API abuse and DDoS attacks.
+      
+      ## Tasks
+      - [ ] Choose rate limiting strategy (Redis or in-memory)
+      - [ ] Implement rate limiting middleware
+      - [ ] Configure per-endpoint limits
+      - [ ] Add rate limit headers to responses
+      - [ ] Write tests for rate limiting
+      - [ ] Document rate limits
+      
+      ## Acceptance Criteria
+      - API endpoints are protected from abuse
+      - Rate limits are configurable
+      - Clients receive appropriate headers
+      - 429 status code returned when limit exceeded
+      - Different limits for different endpoint categories
+      
+      ## Technical Notes
+      - Consider using slowapi or fastapi-limiter
+      - May require Redis for distributed rate limiting
+      - Whitelist admin IPs if needed
