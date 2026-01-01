@@ -1,0 +1,48 @@
+name: Lint Backend
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+    paths:
+      - 'backend/**'
+  pull_request:
+    paths:
+      - 'backend/**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.5.11"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+        working-directory: backend
+
+      - name: Run Ruff linter
+        run: uv run ruff check .
+        working-directory: backend
+
+      - name: Run Ruff formatter check
+        run: uv run ruff format --check .
+        working-directory: backend
+
+      - name: Run mypy type checking
+        run: uv run mypy .
+        working-directory: backend
+        continue-on-error: true

@@ -1,15 +1,54 @@
-# FastAPI Project - Backend
+# BTEC Smart Platform - Backend API
 
-## Requirements
+[![Test Backend](https://github.com/kk121288/BTEC-backend/actions/workflows/test.yml/badge.svg)](https://github.com/kk121288/BTEC-backend/actions/workflows/test.yml)
+[![Lint](https://github.com/kk121288/BTEC-backend/actions/workflows/lint.yml/badge.svg)](https://github.com/kk121288/BTEC-backend/actions/workflows/lint.yml)
+[![Build](https://github.com/kk121288/BTEC-backend/actions/workflows/build.yml/badge.svg)](https://github.com/kk121288/BTEC-backend/actions/workflows/build.yml)
 
-* [Docker](https://www.docker.com/).
-* [uv](https://docs.astral.sh/uv/) for Python package and environment management.
+A comprehensive FastAPI-based backend for the BTEC Smart Platform educational assessment system with AI integration.
 
-## Docker Compose
+## 🚀 Features
+
+- ✅ **FastAPI Framework** - Modern, fast, type-safe Python web framework
+- 🔐 **JWT Authentication** - Secure token-based authentication
+- 🗄️ **PostgreSQL Database** - Robust relational database with SQLAlchemy ORM
+- 🔄 **Database Migrations** - Alembic for version-controlled schema changes
+- 📝 **Auto-generated API Documentation** - Interactive Swagger UI and ReDoc
+- 🧪 **Comprehensive Testing** - pytest with coverage reporting
+- 🐳 **Docker Support** - Containerized deployment
+- 🚀 **CI/CD Pipeline** - Automated testing, linting, and deployment
+- 📊 **Type Safety** - Full type hints with mypy validation
+- 🎨 **Code Quality** - Automated formatting with Ruff
+
+## 📋 Requirements
+
+* [Docker](https://www.docker.com/) for containerized development
+* [uv](https://docs.astral.sh/uv/) for Python package and environment management
+* Python 3.10 or higher
+* PostgreSQL 13 or higher
+
+## 🛠️ Quick Start
+
+### Option 1: Docker Compose (Recommended)
 
 Start the local development environment with Docker Compose following the guide in [../development.md](../development.md).
 
-## General Workflow
+```bash
+# Start all services
+docker compose up -d
+
+# View logs
+docker compose logs -f backend
+
+# Run migrations
+docker compose exec backend alembic upgrade head
+
+# Create initial superuser
+docker compose exec backend python app/initial_data.py
+```
+
+### Option 2: Local Development with uv
+
+### Option 2: Local Development with uv
 
 By default, the dependencies are managed with [uv](https://docs.astral.sh/uv/), go there and install it.
 
@@ -170,3 +209,110 @@ The email templates are in `./backend/app/email-templates/`. Here, there are two
 Before continuing, ensure you have the [MJML extension](https://marketplace.visualstudio.com/items?itemName=attilabuti.vscode-mjml) installed in your VS Code.
 
 Once you have the MJML extension installed, you can create a new email template in the `src` directory. After creating the new email template and with the `.mjml` file open in your editor, open the command palette with `Ctrl+Shift+P` and search for `MJML: Export to HTML`. This will convert the `.mjml` file to a `.html` file and now you can save it in the build directory.
+
+## 🚀 Deployment to Render
+
+This project is configured for easy deployment to Render using the `render.yaml` blueprint.
+
+### Prerequisites
+
+1. Create a [Render account](https://render.com/)
+2. Generate a Render API key from your account settings
+3. Fork/clone this repository to your GitHub account
+
+### Deployment Steps
+
+1. **Connect GitHub Repository:**
+   - Go to Render Dashboard
+   - Click "New +" → "Blueprint"
+   - Connect your GitHub repository
+   - Render will detect `render.yaml` automatically
+
+2. **Configure Environment Variables:**
+   Set these in Render Dashboard after deployment:
+   - `SECRET_KEY` - Generate with: `python -c "import secrets; print(secrets.token_urlsafe(32))"`
+   - `FIRST_SUPERUSER` - Your admin email
+   - `FIRST_SUPERUSER_PASSWORD` - Secure password
+   - `BACKEND_CORS_ORIGINS` - Your frontend URL(s)
+
+3. **Deploy:**
+   - Render will automatically build and deploy
+   - Database will be created and connected automatically
+   - Migrations run automatically on startup
+
+See [../.secrets_placeholders.md](../.secrets_placeholders.md) for detailed secrets configuration.
+
+## 📊 API Documentation
+
+Once running, visit these URLs:
+
+- **Swagger UI** (Interactive): http://localhost:8000/docs
+- **ReDoc** (Alternative): http://localhost:8000/redoc
+- **OpenAPI JSON**: http://localhost:8000/api/v1/openapi.json
+
+### Authentication Example
+
+```bash
+# Login and get access token
+curl -X POST http://localhost:8000/api/v1/login/access-token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=admin@example.com&password=changethis123"
+
+# Use token in subsequent requests
+curl http://localhost:8000/api/v1/users/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+## 📁 Project Structure
+
+```
+backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py              # FastAPI application entry point
+│   ├── api/                 # API routes
+│   │   ├── api_v1/
+│   │   │   ├── api.py       # API router aggregation
+│   │   │   └── endpoints/   # Individual endpoint modules
+│   │   └── deps.py          # Dependency injection
+│   ├── core/                # Core functionality
+│   │   ├── config.py        # Settings and configuration
+│   │   ├── db.py            # Database connection
+│   │   └── security.py      # Authentication & security
+│   ├── models.py            # SQLAlchemy models
+│   ├── crud.py              # Database operations
+│   ├── alembic/             # Database migrations
+│   └── utils.py             # Utility functions
+├── tests/                   # Test suite
+│   ├── conftest.py          # Test fixtures
+│   ├── api/                 # API endpoint tests
+│   └── utils/               # Test utilities
+├── scripts/                 # Utility scripts
+├── Dockerfile               # Docker image definition
+├── pyproject.toml           # Dependencies and config
+└── README.md                # This file
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Make your changes
+4. Run tests: `uv run pytest`
+5. Run linting: `uv run ruff check . && uv run ruff format .`
+6. Commit your changes
+7. Push and create a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
+
+## 📞 Support
+
+- Documentation: http://localhost:8000/docs
+- Issues: [GitHub Issues](https://github.com/kk121288/BTEC-backend/issues)
+- Architecture: [architecture.md](../architecture.md)
+
+---
+
+Made with ❤️ for BTEC Smart Platform
