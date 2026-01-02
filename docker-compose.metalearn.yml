@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: metalearn_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changethis}
+      POSTGRES_DB: ${POSTGRES_DB:-metalearn_pro}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - metalearn_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: metalearn_redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-changethis}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - metalearn_network
+
+  # AI Tutor Service
+  ai_tutor:
+    build:
+      context: ./services/ai_tutor
+      dockerfile: Dockerfile
+    container_name: metalearn_ai_tutor
+    environment:
+      - PORT=8001
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4-turbo-preview}
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - metalearn_network
+    restart: unless-stopped
+
+  # Learning Companion Service
+  learning_companion:
+    build:
+      context: ./services/learning_companion
+      dockerfile: Dockerfile
+    container_name: metalearn_learning_companion
+    environment:
+      - PORT=8002
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - metalearn_network
+    restart: unless-stopped
+
+  # Gamification Service
+  gamification:
+    build:
+      context: ./services/gamification
+      dockerfile: Dockerfile
+    container_name: metalearn_gamification
+    environment:
+      - PORT=8003
+    ports:
+      - "8003:8003"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - metalearn_network
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: metalearn_backend
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-changethis}@postgres:5432/${POSTGRES_DB:-metalearn_pro}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changethis}@redis:6379
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ENVIRONMENT=${ENVIRONMENT:-local}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - ai_tutor
+      - learning_companion
+      - gamification
+    networks:
+      - metalearn_network
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+
+  # Frontend (Optional - if running in Docker)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: metalearn_frontend
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - metalearn_network
+  #   restart: unless-stopped
+
+networks:
+  metalearn_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

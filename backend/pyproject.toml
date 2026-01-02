@@ -1,7 +1,7 @@
 [project]
 name = "app"
 version = "0.1.0"
-description = ""
+description = "MetaLearn Pro - Smart Educational Platform"
 requires-python = ">=3.10,<4.0"
 dependencies = [
     "fastapi[standard]<1.0.0,>=0.114.2",
@@ -21,6 +21,15 @@ dependencies = [
     "pydantic-settings<3.0.0,>=2.2.1",
     "sentry-sdk[fastapi]<2.0.0,>=1.40.6",
     "pyjwt<3.0.0,>=2.8.0",
+    # AI/ML Dependencies
+    "openai>=1.0.0",
+    "redis>=5.0.0",
+    "celery>=5.3.0",
+    # Blockchain Dependencies
+    "web3>=6.0.0",
+    # Additional utilities
+    "python-jose[cryptography]>=3.3.0",
+    "pillow>=10.0.0",
 ]
 
 [tool.uv]
