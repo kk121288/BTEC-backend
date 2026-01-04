@@ -1,8 +1,16 @@
 from collections.abc import Generator
 
+import sys
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, delete
+
+import os
+# Ensure pytest runs with project root as cwd so absolute imports work
+try:
+    os.chdir("/app")
+except Exception:
+    pass
 
 from app.core.config import settings
 from app.core.db import engine, init_db
