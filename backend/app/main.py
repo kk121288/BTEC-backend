@@ -1,36 +1,31 @@
-# import sentry_sdk
-from fastapi import FastAPI
-from fastapi.routing import APIRoute
-from starlette.middleware.cors import CORSMiddleware
-from app.api.main import api_router
-from app.core.config import settings
+﻿
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
+app = FastAPI()
 
-def custom_generate_unique_id(route: APIRoute) -> str:
-    return f"{route.tags[0]}-{route.name}"
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
 
-# Disable Sentry completely (safe for development)
-if settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
-    # sentry_sdk.init(dsn=str(settings.SENTRY_DSN), enable_tracing=True)
-    pass
+@app.post("/api/v1/auth/login")
+def login(payload: LoginRequest):
+    # مثال: تحقُّق بسيط
+    if payload.username == "hamza" and payload.password == "2200":
+        # في مشروعك الحقيقي رجع JWT فعلي
+        return {"token": "example-token-123"}
+    raise HTTPException(status_code=401, detail="Invalid credentials")
 
+@app.get("/api/v1/admin/generate-reports")
+def generate_reports():
+    # مثال استجابة
+    return {"reports": ["r1", "r2"], "status": "generated"}
 
-app = FastAPI(
-    title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    generate_unique_id_function=custom_generate_unique_id,
-)
-
-# Enable CORS
-if settings.all_cors_origins:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.all_cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-# Include API routers
-app.include_router(api_router, prefix=settings.API_V1_STR)
+if __name__ == "__main__":
+    import uvicorn
+    # شغّل Uvicorn من داخل سكريبت، أو استخدم أمر خارجي كما بالأسفل
+    uvicorn.run(app, host="0.0.0.0", port=10000)
