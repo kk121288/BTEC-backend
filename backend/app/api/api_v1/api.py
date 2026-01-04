@@ -1,12 +1,10 @@
 from fastapi import APIRouter
-from .endpoints import btec, virtual_tutor
-from .endpoints import healthcheck
+from .endpoints import tutor as _tutor  # keep compatibility if exists
+from .endpoints import login as login
+from .endpoints import files as files
+from .endpoints import assistant as assistant
 
 api_router = APIRouter()
-
-# ربط راوتر نقاط النهاية الخاصة بـ btec
-api_router.include_router(btec.router, prefix="/btec", tags=["btec"])
-# Virtual tutor (uses student progress)
-api_router.include_router(virtual_tutor.router, prefix="/virtual-tutor", tags=["virtual_tutor"])
-# Healthcheck endpoint
-api_router.include_router(healthcheck.router, prefix="/health", tags=["health"])
+api_router.include_router(login.router, prefix="/login", tags=["login"])
+api_router.include_router(files.router, prefix="/files", tags=["files"])
+api_router.include_router(assistant.router, prefix="/assistant", tags=["assistant"])
