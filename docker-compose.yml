@@ -4,37 +4,50 @@ services:
   # 1. قاعدة البيانات
   db:
     image: postgres:17-alpine
-    container_name: btec-db
+    container_name: btec-db-v2
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: btec_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    # --- الإضافة الجديدة: فحص الصحة ---
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d btec_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # 2. الخلفية (Backend)
   backend:
     build: ./backend
-    container_name: btec-backend
+    container_name: btec-backend-v2
     ports:
-      - "10000:10000"
+      - "10001:10000"
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/btec_db
+      - PROJECT_NAME=BTEC
+      - POSTGRES_SERVER=db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=btec_db
+      - FIRST_SUPERUSER=admin@example.com
+      - FIRST_SUPERUSER_PASSWORD=changeme
     restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy # الانتظار حتى تكتمل جاهزية القاعدة
 
   # 3. الواجهة (Frontend)
   frontend:
     build: ./frontend
-    container_name: btec-frontend
+    container_name: btec-frontend-v2
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
-      # نستخدم localhost لأن المتصفح هو من سينفذ الطلب من جهازك الشخصي
       - NEXT_PUBLIC_API_URL=http://localhost:10000
     depends_on:
       - backend

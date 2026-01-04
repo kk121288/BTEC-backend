@@ -9,117 +9,55 @@ Focus on respecting existing architecture, workflows, and conventions.
 This project consists of **three coordinated components**:
 
 ### **1) Flutter Frontend — `/Flutter`**
-- Mobile + Web client for the BTEC Smart Platform.
-- Uses:
-  - `google_fonts`, `iconsax`, `lottie`, `shimmer`, `fl_chart`
-  - Custom assets under `assets/{images,icons,animations,fonts}`
-- UI follows a **Cairo font**, clean card-based layout, and modular widgets.
-- State management is currently lightweight; avoid introducing new patterns unless requested.
+## 🧠 Copilot Instructions — BTEC Smart Platform & Backend
 
-### **2) FastAPI Backend — `/BTEC-backend`**
-- Provides AI-powered assessment APIs.
-- Organized into:
-  - `/routes` → endpoint definitions  
-  - `/services` → business logic  
-  - `/models` → Pydantic schemas  
-  - `/utils` → helpers (validation, scoring, file ops)
-- Uses microservice-friendly structure; keep modules isolated.
+Purpose: concise, actionable guidance to get an AI coding agent productive in this repository.
 
-### **3) Virtual World Submodule — `/BTEC-Virtual-World`**
-- Git submodule providing shared assets and simulation templates.
-- Always update using:
-git submodule update --init --recursive
+**Big picture**
+- Components: `Flutter/` (mobile/web UI), `backend/` (FastAPI services), `BTEC-Virtual-World/` (read-only git submodule for simulations/assets).
+- Backend routes are thin: they delegate to `backend/app/services/*` where business rules and AI scoring live.
 
----
+**Quick commands**
+- Setup backend env: `uv sync` then `source backend/.venv/bin/activate`
+- Dev stack: `docker compose up --build` (iterative: `docker compose watch`)
+- Backend shell: `docker compose exec backend bash`
+- FastAPI dev server (in container): `fastapi run --reload app/main.py`
+- Tests: `bash backend/scripts/test.sh` or `docker compose exec backend bash scripts/tests-start.sh -- -x`
+- Migrations: `alembic revision --autogenerate -m "msg"` then `alembic upgrade head`
+- Update submodule: `git submodule update --init --recursive`
 
-## 🔷 2. Developer Workflows
+**Backend conventions (required)**
+- Route files in `backend/app/api/` or `backend/app/routes/` must be thin and call services.
+- Every endpoint: include a Pydantic request model, a Pydantic response model, and a service implementation in `backend/app/services/`.
+- Prefer `SQLModel` in `backend/app/models.py` and keep Alembic revisions under `backend/app/alembic/versions/`.
 
-### **Flutter**
-- Install dependencies:
+**Frontend conventions (Flutter)**
+- UI lives under `Flutter/lib/widgets` and `Flutter/lib/features/<feature>/` (use `view.dart`, `controller.dart`, and `widgets/`).
+- Keep business logic out of widgets; use controller/service files under `lib/`.
+- Fonts/assets declared in `Flutter/pubspec.yaml`; primary font is Cairo.
 
+**Tests & CI**
+- Backend tests: `backend/tests/` (pytest). Use `backend/scripts/test.sh` locally.
+- Coverage output goes to `htmlcov/index.html`.
 
+**Key files to inspect**
+- `backend/app/main.py` — app entry
+- `backend/app/models.py` — data models
+- `backend/app/services/` — business and AI logic
+- `backend/app/api/` — route definitions
+- `Flutter/lib/` — frontend feature modules and widgets
+- `docker-compose.yml` — local dev stack
 
+**Do not**
+- Restructure `BTEC-Virtual-World/` submodule.
+- Add global state libraries to Flutter without approval.
+- Move business logic from services into route handlers.
 
+**Quick checklist to add a backend endpoint**
+1. Add/modify `SQLModel` in `backend/app/models.py` (+ alembic rev if persistent).
+2. Add Pydantic request/response models in `models.py` or `schemas.py`.
+3. Implement logic in `backend/app/services/<feature>.py`.
+4. Add a thin route in `backend/app/api/<feature>.py` that calls the service.
+5. Add tests in `backend/tests/` and update migrations.
 
----
-
-## 🔷 3. Project Conventions
-
-### **Flutter**
-- Use `Cairo` as the primary font.
-- All UI components live under `lib/widgets` or `lib/features/...`.
-- Avoid business logic inside widgets; place logic in `services` or `controllers`.
-
-### **Backend**
-- Every endpoint must have:
-- A Pydantic request model
-- A Pydantic response model
-- A service function
-- Keep routes thin; logic belongs in `/services`.
-
-### **Virtual World**
-- Treat as read-only unless explicitly modifying simulation templates.
-
----
-
-## 🔷 4. Integration Patterns
-
-### **Frontend → Backend**
-- All API calls use the `http` package.
-- Base URL is configured in `lib/config/api.dart`.
-- Responses must be parsed into typed Dart models.
-
-### **Backend → AI Services**
-- AI scoring modules live under `/services/ai`.
-- Avoid mixing AI logic with routing.
-
-### **Backend → Virtual World**
-- Access shared assets via relative imports from the submodule path.
-
----
-
-## 🔷 5. Important Files & Directories
-
-| Path | Purpose |
-|------|---------|
-| `/Flutter/pubspec.yaml` | Dependencies, assets, fonts |
-| `/Flutter/lib/` | Main application code |
-| `/BTEC-backend/routes/` | API endpoints |
-| `/BTEC-backend/services/` | Business logic |
-| `/BTEC-backend/models/` | Pydantic schemas |
-| `/BTEC-Virtual-World/` | Submodule assets |
-
----
-
-## 🔷 6. Patterns AI Agents Should Follow
-
-- Prefer **small, composable functions** over large monolithic ones.
-- Maintain **strict separation** between UI, logic, and data models.
-- When adding new endpoints:
-- Create a model → service → route (in that order).
-- When adding new Flutter screens:
-- Create a folder under `lib/features/<feature_name>/`
-- Include: `view.dart`, `controller.dart`, `widgets/`
-
----
-
-## 🔷 7. What NOT to Do
-
-- Do not introduce new state management libraries unless requested.
-- Do not modify submodule structure.
-- Do not mix backend business logic inside route files.
-- Do not place assets outside the defined folders.
-
----
-
-## 🔷 8. Quick Start for AI Agents
-
-If generating code:
-
-- For Flutter UI → follow existing widget patterns in `lib/widgets`.
-- For backend endpoints → mirror structure in `routes/health.py` or similar.
-- For models → follow Pydantic style in `models/`.
-
----
-
-If any section is unclear, request clarification and iterate.
+If you want a short scaffolding example (endpoint + service + test), tell me which feature and I will add it.

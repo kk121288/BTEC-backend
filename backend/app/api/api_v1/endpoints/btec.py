@@ -10,7 +10,7 @@ from app.api import deps
 router = APIRouter()
 
 
-@router.post("/assessments/", response_model=schemas.BTECAssessment)
+@router.post("/assessments/", response_model=schemas.BTECAssessmentCreate)
 def create_assessment(
     *,
     assessment_in: schemas.BTECAssessmentCreate,

@@ -1,14 +1,25 @@
-FROM node:20-alpine
-
+# builder stage
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# تثبيت المكتبات
+# copy only package files first to leverage cache
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci
 
-# نسخ الكود
+# copy rest and build
 COPY . .
+RUN npm run build
 
-# بدل 'next start'، سنستخدم 'next dev' للتشغيل المباشر والحي
+# production image
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+
+# copy built assets and node_modules from builder
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package*.json ./
+
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]

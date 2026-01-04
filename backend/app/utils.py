@@ -57,3 +57,22 @@ def decode_token(token: str) -> dict:
         return payload
     except JWTError:
         return None
+
+
+def generate_password_reset_token(email: str, expires_hours: int | None = None) -> str:
+    """Generate a short-lived password reset token for `email`.
+
+    The token is a JWT using the same `SECRET_KEY`/`ALGORITHM` and includes
+    a `type` claim so handlers can distinguish it from access/refresh tokens.
+    """
+    try:
+        # Import settings lazily to avoid import cycles during startup
+        from app.core.config import settings
+
+        hours = expires_hours if expires_hours is not None else settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS
+    except Exception:
+        hours = expires_hours or 48
+
+    expire = datetime.utcnow() + timedelta(hours=hours)
+    to_encode = {"exp": expire, "sub": email, "type": "password_reset"}
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

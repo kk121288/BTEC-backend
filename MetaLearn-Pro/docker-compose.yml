@@ -1,0 +1,16 @@
+﻿version: '3.8'
+services:
+  gateway:
+    build: ./gateway
+    ports: ["10000:10000"]
+  ai-tutor:
+    build: ./services/ai-tutor
+    environment:
+      - MODEL_TYPE=TRANSFORMERS
+  vr-engine:
+    build: ./services/vr-engine
+    ports: ["10005:10005"]
+  database:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: metalearn_db

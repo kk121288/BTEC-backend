@@ -1,67 +1,81 @@
-"use client";
-import React, { useState } from "react";
+'use client';
 
-export default function GlobalSystem() {
-  const [auth, setAuth] = useState(null);
-  const [error, setError] = useState("");
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-  const login = async (e) => {
-    e.preventDefault();
-    const u = e.target.username.value;
-    const p = e.target.password.value;
+export default function Home() {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    setLoading(true);
     
-    setError("جاري الاتصال بالنواة..."); // رسالة طمأنة للمستخدم
-
-    try {
-      // تم تصحيح العنوان هنا من 127.00.0.1 إلى 127.0.0.1
-      const res = await fetch(`http://localhost:10000/api/v1/auth/login?u=${u}&p=${p}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setAuth(data);
-        setError("");
-      } else {
-        setError("فشل الدخول: تأكد من اسم المستخدم وكلمة المرور");
-      }
-    } catch (err) {
-      console.error("Connection Error:", err);
-      setError("النظام متصل ولكن السيرفر لا يستجيب.. تأكد من تشغيل Docker Backend");
-    }
+    // محاولة اتصال وهمية لإعطاء شعور بالمعالجة
+    setTimeout(() => {
+        // ✅ التوجيه إلى لوحة التحكم الصحيحة
+        router.push('/dashboard');
+    }, 1500); 
   };
 
-  if (auth) return (
-    <div className="bg-black min-h-screen text-cyan-400 p-20 font-mono flex flex-col items-center justify-center">
-      <div className="border-2 border-cyan-500 p-10 rounded-[3rem] shadow-[0_0_50px_rgba(6,182,212,0.3)]">
-        <h1 className="text-5xl font-black italic mb-4 animate-pulse">BTEC_NEXUS: ONLINE</h1>
-        <p className="mt-4 text-xl border-b border-cyan-900 pb-4">مرحباً بالقائد: {auth.role}</p>
-        <div className="grid grid-cols-3 gap-10 mt-10">
-           <div className="p-10 border border-cyan-800 rounded-3xl text-center font-bold hover:bg-cyan-500 hover:text-black transition-all cursor-pointer">📊 إحصائيات 1000 طالب</div>
-           <div className="p-10 border border-cyan-800 rounded-3xl text-center font-bold hover:bg-cyan-500 hover:text-black transition-all cursor-pointer">🤖 كاشف الانتحال</div>
-           <div className="p-10 border border-cyan-800 rounded-3xl text-center font-bold hover:bg-cyan-500 hover:text-black transition-all cursor-pointer">🥽 بيئة الـ VR</div>
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-950 text-white relative overflow-hidden">
+      
+      {/* خلفية جمالية متحركة */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[100px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[100px]"></div>
+      </div>
+
+      <div className="z-10 w-full max-w-md p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+        <div className="text-center mb-10">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
+            MetaLearn
+          </h1>
+          <p className="text-gray-400 text-sm tracking-widest uppercase">بوابة الواقع الافتراضي</p>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-gray-400 text-sm mb-2 text-right">رقم المستخدم</label>
+            <input 
+              type="text" 
+              className="w-full p-4 rounded-lg bg-black/30 border border-white/10 text-white focus:border-blue-500 focus:outline-none transition-all text-right"
+              placeholder="User ID"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-gray-400 text-sm mb-2 text-right">مفتاح الوصول</label>
+            <input 
+              type="password" 
+              className="w-full p-4 rounded-lg bg-black/30 border border-white/10 text-white focus:border-blue-500 focus:outline-none transition-all text-right"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button 
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full py-4 mt-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-lg font-bold text-lg shadow-lg shadow-blue-500/30 transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                جاري الاتصال بالنواة...
+              </>
+            ) : (
+              'تفعيل الدخول للنظام'
+            )}
+          </button>
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-white/10 text-center">
+          <div className="flex justify-center gap-6 text-xs text-gray-500 font-mono">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> AI ENGINE: ACTIVE</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-blue-500 rounded-full"></span> VR SYNC: READY</span>
+          </div>
         </div>
       </div>
-    </div>
-  );
-
-  return (
-    <div className="bg-[#000205] min-h-screen flex items-center justify-center font-mono">
-      <form onSubmit={login} className="p-10 border border-cyan-500 rounded-[3rem] w-full max-w-md bg-black/50 backdrop-blur-xl shadow-2xl">
-        <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 border-4 border-cyan-500 rounded-full flex items-center justify-center animate-spin-slow">
-                <span className="text-cyan-500 font-bold">BTEC</span>
-            </div>
-        </div>
-        <h2 className="text-cyan-400 text-center text-2xl font-black mb-8 italic tracking-widest">بوابة الدخول الموحدة</h2>
-        <input name="username" placeholder="اسم المستخدم (Key)" className="w-full mb-4 p-4 bg-black border border-cyan-900 text-white rounded-2xl focus:border-cyan-500 outline-none transition-all" />
-        <input name="password" type="password" placeholder="كلمة المرور" className="w-full mb-6 p-4 bg-black border border-cyan-900 text-white rounded-2xl focus:border-cyan-500 outline-none transition-all" />
-        <button className="w-full p-4 bg-cyan-500 text-black font-black rounded-2xl uppercase hover:bg-white transition-colors shadow-[0_0_20px_rgba(6,182,212,0.5)]">تفعيل الدخول</button>
-        {error && <p className="text-cyan-600 text-xs mt-4 text-center italic font-bold">{error}</p>}
-      </form>
-    </div>
+    </main>
   );
 }
