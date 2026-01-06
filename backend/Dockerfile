@@ -1,44 +1,34 @@
-FROM python:3.10
+﻿
+# backend/Dockerfile
+FROM python:3.10-slim
 
-ENV PYTHONUNBUFFERED=1
+# ØªØ«Ø¨ÙŠØª Ø§Ù„Ø£Ø¯ÙˆØ§Øª Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ© (Ø§Ø®ØªÙŠØ§Ø±ÙŠ Ù„ÙƒÙ† Ù…ÙÙŠØ¯ Ù„Ø¨Ø¹Ø¶ Ø§Ù„Ø­Ø²Ù…)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl && \
+    rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app/
+WORKDIR /app
 
-# Install uv
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
-COPY --from=ghcr.io/astral-sh/uv:0.5.11 /uv /uvx /bin/
+# ØªØ«Ø¨ÙŠØª Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯Ø§Øª
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Place executables in the environment at the front of the path
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
-ENV PATH="/app/.venv/bin:$PATH"
+# Ù†Ø³Ø® ÙƒÙˆØ¯ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚
+COPY . .
 
-# Compile bytecode
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
-ENV UV_COMPILE_BYTECODE=1
-
-# uv Cache
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#caching
-ENV UV_LINK_MODE=copy
-
-# Install dependencies
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
-
+# Ù„Ø¬Ø¹Ù„ Ø§Ù„Ø­ÙØ²Ù… Ù‚Ø§Ø¨Ù„Ø© Ù„Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯
 ENV PYTHONPATH=/app
 
-COPY ./scripts /app/scripts
+# Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø³ØªØ®Ø¯Ù… ØºÙŠØ± Ø¥Ø¯Ø§Ø±ÙŠ (ØªØ­Ø³ÙŠÙ† Ø£Ù…Ù†ÙŠ)
+RUN adduser --disabled-password appuser && chown -R appuser /app
+USER appuser
 
-COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
+# Ø§Ù„Ù…Ù†ÙØ° Ø§Ù„Ø°ÙŠ Ø³ÙŠØ¹Ù…Ù„ Ø¹Ù„ÙŠÙ‡ Uvicorn (ÙˆÙÙ‚ Ø¥Ø¹Ø¯Ø§Ø¯Ùƒ)
+EXPOSE 10000
 
-COPY ./app /app/app
-COPY ./tests /app/tests
+# Ø£Ù…Ø± Ø§Ù„ØªØ´ØºÙŠÙ„
+CMD ["uvicorn", "app.main:app", "--host", "0
 
-# Sync the project
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync
+COPY . /app
 
-CMD ["fastapi", "run", "--workers", "4", "app/main.py"]

@@ -1,0 +1,6 @@
+ImportError while loading conftest 'D:\BTEC-backend\backend\tests\conftest.py'.
+D:\BTEC-backend\backend\tests\conftest.py:15: in <module>
+    from app.core.config import settings
+D:\BTEC-backend\backend\app\core\config.py:17: in <module>
+    from pydantic_settings import BaseSettings, SettingsConfigDict
+E   ModuleNotFoundError: No module named 'pydantic_settings'
