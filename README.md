@@ -9,29 +9,47 @@
 ---
 
 # ✨ Vision  
-بناء منظومة تعليمية متكاملة، ذكية، وعادلة،  
-تعيد تعريف التعليم المهني وتجعله أكثر دقة، نزاهة، وابتكارًا.
-
 # 🎯 Mission  
-تمكين الطلاب والمعلمين عبر منصة تعتمد على:  
 - الذكاء الاصطناعي  
 - التقييم الذكي  
 - النزاهة الأكاديمية  
 - تجربة تعلم سلسة  
 - بنية تقنية قابلة للتوسع لعقود قادمة  
-
 ---
 
 # 🧬 Core Philosophy  
 - **Integrity First** — النزاهة الأكاديمية ليست ميزة، بل أساس.  
-- **AI Everywhere** — الذكاء الاصطناعي جزء من كل خطوة.  
-- **Timeless Architecture** — تصميم يعيش 100 سنة للأمام.  
-- **Human‑Centered Learning** — التكنولوجيا تخدم الإنسان، لا العكس.  
-- **Scalability by Design** — كل جزء قابل للتوسع بلا حدود.  
-
 ---
 
 # 🏗️ System Architecture (2125‑Ready)
+---  
+  
+## Developer automation (اختصار مهام التطوير)  
+  
+- Bootstrap backend environment (Unix):  
+  
+```bash  
+./scripts/bootstrap.sh  
+```  
+  
+- Bootstrap backend environment (Windows PowerShell):  
+  
+```powershell  
+.\scripts\bootstrap.ps1  
+```  
+  
+- Common handy targets via `Makefile` (root):  
+  
+```bash  
+make setup        # create venv and install deps  
+make docker-up    # docker compose up --build  
+make backend-run  # run backend with uvicorn  
+make backend-test # run backend tests  
+```  
+  
+CI: A GitHub Actions workflow runs backend tests on push/PR: `.github/workflows/backend-ci.yml`.  
+  
+```
 
                  ┌──────────────────────────────┐
                  │     Flutter Mobile App        │
