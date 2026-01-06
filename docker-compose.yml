@@ -1,8 +1,7 @@
-﻿version: "3.9"
+version: "3.9"
 services:
   db:
     image: postgres:17-alpine
-    container_name: btec-db-v2
     env_file: .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -12,43 +11,19 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
 
   backend:
     build: ./backend
-    container_name: btec-backend-v2
-    env_file: .env
-    environment:
-      DATABASE_URL: ${DATABASE_URL_INTERNAL}
-      PROJECT_NAME: BTEC
-      FIRST_SUPERUSER: ${FIRST_SUPERUSER}
-      FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD}
-      PYTHONPATH: /app
     ports:
       - "10000:10000"
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: always
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000", "--reload"]
+    env_file: .env
     volumes:
       - ./backend:/app:delegated
 
   frontend:
     build: ./frontend
-    container_name: btec-frontend-v2
     ports:
       - "3001:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: "http://localhost:10000"
-    depends_on:
-      - backend
-    restart: always
     volumes:
       - ./frontend:/app:delegated
 

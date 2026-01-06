@@ -22,8 +22,59 @@ jobs:
           source .venv/bin/activate
           pip install -U pip
           pip install -r requirements.txt
-      - name: Run tests
+      - name: Run lightweight smoke tests (avoid full DB-dependent suite)
         run: |
           cd backend
           source .venv/bin/activate
-          bash scripts/test.sh
+          # Run simple Python test runner which avoids app-wide conftest imports
+          PYTHONPATH=$(pwd) python -B scripts/run_simple_tests.py
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: backend-tests
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: btec_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+    env:
+      PROJECT_NAME: btec
+      POSTGRES_SERVER: 127.0.0.1
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: btec_db
+      FIRST_SUPERUSER: admin@example.com
+      FIRST_SUPERUSER_PASSWORD: changethis
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install backend deps
+        run: |
+          cd backend
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -U pip
+          pip install -r requirements.txt
+      - name: Wait for Postgres
+        run: |
+          until pg_isready -h 127.0.0.1 -p 5432 -U postgres; do sleep 1; done
+      - name: Run migrations
+        run: |
+          cd backend
+          source .venv/bin/activate
+          alembic upgrade head
+      - name: Run full tests
+        run: |
+          cd backend
+          source .venv/bin/activate
+          pytest -q tests/
