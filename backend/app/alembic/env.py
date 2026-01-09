@@ -19,7 +19,7 @@ fileConfig(config.config_file_name)
 # target_metadata = None
 
 from app.database import Base
-from app import models
+from app import schemas as models
 from app.core.config import settings # noqa
 
 target_metadata = Base.metadata
@@ -31,6 +31,12 @@ target_metadata = Base.metadata
 
 
 def get_url():
+    # Prefer an explicit DATABASE_URL environment variable when present.
+    # This allows local autogenerate to use a temporary SQLite DB instead
+    # of attempting to connect to the production Postgres URL from settings.
+    env_url = os.environ.get('DATABASE_URL') or os.environ.get('DATABASE_URI')
+    if env_url and env_url.strip() != '':
+        return str(env_url)
     return str(settings.SQLALCHEMY_DATABASE_URI)
 
 
@@ -83,3 +89,4 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+
